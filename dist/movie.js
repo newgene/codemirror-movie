@@ -521,7 +521,7 @@ function movie(target) {
 
 /**
  * Prettyfies key bindings references in given string: formats it according
- * to current user’s platform. The key binding should be defined inside 
+ * to current user’s platform. The key binding should be defined inside
  * parentheses, e.g. <code>(ctrl-alt-up)</code>
  * @param {String} str
  * @param {Object} options Transform options
@@ -553,7 +553,39 @@ function readLines(text) {
 	var nl = "\n";
 	var lines = (text || "").replace(/\r\n/g, nl).replace(/\n\r/g, nl).replace(/\r/g, nl).split(nl);
 
-	return lines.filter(Boolean);
+	var multi_line_marker = "`";
+	var processedLines = [];
+	var multi_line_start = false;
+	var cur_line;
+	var line;
+
+	lines.forEach(function (line) {
+		if (multi_line_start) {
+			if (line.endsWith(multi_line_marker)) {
+				line = line.slice(0, -multi_line_marker.length);
+				cur_line = cur_line.concat(line);
+				processedLines.push(cur_line);
+				multi_line_start = false;
+			} else {
+				cur_line = cur_line.concat(line, "\\n");
+			}
+		} else {
+			cur_line = line;
+			if (line.endsWith(multi_line_marker)) {
+				multi_line_start = true;
+				cur_line = cur_line.slice(0, -multi_line_marker.length);
+				cur_line = cur_line.concat("\\n");
+			} else {
+				processedLines.push(cur_line);
+			}
+		}
+	});
+	// if no ending multi_line_marker found, send anything up to the end.
+	if (multi_line_start) {
+		processedLines.push(cur_line);
+	}
+
+	return processedLines.filter(Boolean);
 }
 
 function unescape(text) {
