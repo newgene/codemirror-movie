@@ -13,13 +13,13 @@ var actions = {
 	/**
   * Type-in passed text into current editor char-by-char
   * @param {Object} options Current options
-  * @param {CodeMirror} editor Editor instance where action should be 
+  * @param {CodeMirror} editor Editor instance where action should be
   * performed
   * @param {Function} next Function to call when action performance
   * is completed
-  * @param {Function} timer Function that creates timer for delayed 
+  * @param {Function} timer Function that creates timer for delayed
   * execution. This timer will automatically delay execution when
-  * scenario is paused and revert when played again 
+  * scenario is paused and revert when played again
   */
 	type: function type(options, editor, next, timer) {
 		options = extend({
@@ -46,6 +46,29 @@ var actions = {
 			} else {
 				next();
 			}
+		}, options.delay);
+	},
+
+	insert: function insert(options, editor, next, timer) {
+		options = extend({
+			text: "", // text to type
+			delay: 0, // delay between character typing
+			pos: null // initial position where to start typing
+		}, wrap("text", options));
+
+		if (!options.text) {
+			throw new Error("No text provided for \"insert\" action");
+		}
+
+		if (options.pos !== null) {
+			editor.setCursor(makePos(options.pos, editor));
+		}
+
+		var chars = options.text.split("");
+
+		timer(function perform() {
+			editor.replaceSelection(options.text, "end");
+			next();
 		}, options.delay);
 	},
 
