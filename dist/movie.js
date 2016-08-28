@@ -52,7 +52,7 @@ var actions = {
 	insert: function insert(options, editor, next, timer) {
 		options = extend({
 			text: "", // text to type
-			delay: 0, // delay between character typing
+			delay: 0, // delay before text insertion
 			pos: null // initial position where to start typing
 		}, wrap("text", options));
 
